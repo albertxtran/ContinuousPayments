@@ -1,29 +1,33 @@
 pragma solidity ^0.4.15;
 
-
 contract ContinuousPayment {
 
-    address public contractor;
-    address public employer;
-    uint public weiPerSecond;
-    uint public startTime;
+    address public contractor; // Contractor hired for the job
+    address public employer; // Employer that hires the contractor for work
+    uint public weiPerSecond; // Payment rate in Wei per second
+    uint public startTime; // Timestap of when the contract begins
 
-    event Withdrew(uint amount, address indexed withdrawer);
+    event Withdrew(uint amount, address indexed withdrawer); // Shows how much was withdrawn from the contract
 
-    function ContinuousPayment(uint _weiPerSecond) {
+
+    //Constructor that assigns the contractor and wei per second
+    function ContinuousPayment(uint _weiPerSecond) { 
         weiPerSecond = _weiPerSecond;
         contractor = msg.sender;
     }
 
+    //Transfers payment 
     function() payable {
         depositPayment();
     }
 
+    //Payment deposits from employer; contract begins when deposits have been made
     function depositPayment() payable {
         employer = msg.sender;
         startTime = getTime();
     }
 
+    //Withdraws from deposits from either the contractor or employer
     function withdrawPayment() {
         uint owed = balanceOwed();
         startTime = getTime();
@@ -40,6 +44,7 @@ contract ContinuousPayment {
         }
     }
 
+    //Calculates the balance owed to each party as time passes 
     function balanceOwed() constant returns (uint) {
         uint owed = weiPerSecond * (getTime() - startTime);
         uint balance = address(this).balance;
